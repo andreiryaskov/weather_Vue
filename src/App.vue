@@ -1,37 +1,51 @@
-<script >
+<script>
 import axios from 'axios'
-
-import {computed} from "vue";
 
 export default {
   data() {
     return {
       city: "",
       error: "",
-      info: null
+      info: null,
     }
   },
   computed: {
     cityName() {
       return this.city
-    }
+    },
+    setTemp() {
+      return this.info.main.temp
+    },
+    setFeelsLike() {
+      return this.info.main.feels_like
+    },
+    maxTemp() {
+      return this.info.main.temp_max
+    },
+    minTemp() {
+      return this.info.main.temp_min
+    },
   },
   methods: {
     getWeather() {
-      if(this.city.trim().length < 2) {
+      if (this.city.trim().length < 2) {
         this.error = "Set more symbols"
         return false
       }
       this.error = ''
 
       axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=110da98b8ed50385ca1dfe9345d131d7`)
-          .then(res => console.log(res.json()))
-          .then(result => this.info = result.data)
-          .catch((error) => console.log(error.message))
+          .then(result => {
+            console.log(result.data)
+            this.info = result.data
+          })
+          .catch((error) => {
+            console.log(error.message)
+            this.error = error.message
+          })
           .finally(() => console.log('END'))
     }
   }
-
 }
 
 </script>
@@ -40,34 +54,56 @@ export default {
 
   <div class="wrapper">
     <h1>Weather</h1>
-    <p>Get weather {{city == "" ? "your country" : cityName}}</p>
-    <input type="text"
-           placeholder="Set country"
-           v-model="city"
-    >
-    <button
-      v-if="city != ''"
-      @click="getWeather()"
-    >Get weather</button>
-    <button
-        v-else="city"
-        disabled
-    >Set country</button>
-    <p class="error">{{error}}</p>
-    <p class="result" v-if="info !== null">{{info}}</p>
+    <p>Get weather {{ city == "" ? "your country" : cityName }}</p>
+    <div class="form_wrapper">
+      <input type="text"
+             placeholder="Set country"
+             v-model="city"
+      >
+      <button
+          v-if="city != ''"
+          @click="getWeather()"
+      >Get weather
+      </button>
+      <button
+          v-else="city"
+          disabled
+      >Set country
+      </button>
+
+    </div>
+
+
+    <div class="result_wrapper">
+      <p class="result_item" v-if="info !== null">Temperature is {{ setTemp }}</p>
+      <p class="result_item" v-if="info !== null">Feels like is {{ setFeelsLike }}</p>
+      <p class="result_item" v-if="info !== null">Max temperature is {{ maxTemp }}</p>
+      <p class="result_item" v-if="info !== null">Min temperature is {{ minTemp }}</p>
+    </div>
+
   </div>
 
 </template>
 
 <style scoped>
 
-.result {
+.result_item {
   color: antiquewhite;
+  margin-top: 10px;
 }
 
-.error {
-  color: red;
+.result_wrapper {
+  margin-top: 30px;
 }
+
+.form_wrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+}
+
 .wrapper {
   width: 900px;
   height: 500px;
@@ -84,16 +120,20 @@ export default {
 
 input {
   width: 200px;
-  margin-top: 30px;
+  height: 30px;
   background: transparent;
   border: none;
   color: antiquewhite;
   padding: 5px;
+  margin-right: 10px;
+
 }
 
 button {
   width: 100px;
-  margin-top: 20px;
+  height: 30px;
+  border-radius: 5px;
+  background-color: burlywood;
 }
 
 button:disabled {
